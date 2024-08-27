@@ -1,4 +1,4 @@
--- Set <space> as the leader key
+-- Set <space> as the leader keytcs
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
@@ -13,7 +13,8 @@ vim.g.have_nerd_font = true
 --  For more options, you can see `:help option-list`
 
 -- tabs
-vim.opt.shiftwidth = 4
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
 vim.opt.softtabstop = -1
 -- Make line numbers default
 vim.opt.number = true
@@ -77,9 +78,7 @@ vim.opt.scrolloff = 10
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<tab>', '<cmd>tabnext<CR>')
-vim.keymap.set('n', '<s-tab>', '<cmd>tabprev<CR>')
 vim.keymap.set('n', '<s-tab>', '<cmd>tabprev<CR>')
 vim.keymap.set('n', 'te', '<cmd>tabedit<CR>')
 
@@ -532,6 +531,8 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`tsserver`) will work just finecssls = {},
         cssls = {},
+        dockerls = {},
+        docker_compose_language_service = {},
         tailwindcss = {
           root_dir = function(...)
             return require('lspconfig.util').root_pattern '.git'(...)
@@ -644,11 +645,15 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'isort', 'black' },
+        c = { 'clang-format' },
+        cxx = { 'clang-format' },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        javascript = { { 'prettierd', 'prettier' } },
+        html = { 'prettier' },
+        css = { 'prettier' },
       },
     },
   },
@@ -769,13 +774,82 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+    --'folke/tokyonight.nvim',
+    -- NOTE: solarized osaka colorscheme
+
+    --[[ 'craftzdog/solarized-osaka.nvim',
+    lazy = false,
+    priority = 1000,
+    opts = {
+      transparent = true, -- Enable this to disable setting the background color
+      terminal_colors = true, -- Configure the colors used when opening a `:terminal` in [Neovim](https://github.com/neovim/neovim)
+      styles = {
+        -- Style to be applied to different syntax groups
+        -- Value is any valid attr-list value for `:help nvim_set_hl`
+        comments = { italic = true },
+        keywords = { italic = true },
+        functions = {},
+        variables = {},
+        -- Background styles. Can be "dark", "transparent" or "normal"
+        sidebars = 'light', -- style for sidebars, see below
+        floats = 'dark', -- style for floating windows
+      },
+      sidebars = { 'qf', 'help' }, -- Set a darker background on sidebar-like windows. For example: `["qf", "vista_kind", "terminal", "packer"]`
+      day_brightness = 0.3, -- Adjusts the brightness of the colors of the **Day** style. Number between 0 and 1, from dull to vibrant colors
+      hide_inactive_statusline = false, -- Enabling this option, will hide inactive statuslines and replace them with a thin border instead. Should work with the standard **StatusLine** and **LuaLine**.
+      dim_inactive = false, -- dims inactive windows
+      lualine_bold = false, -- When `true`, section headers in the lualine theme will be bold
+    }, ]]
+    -- NOTE: onedark colorscheme
+
+    'navarasu/onedark.nvim',
+    priority = 1000,
+    opts = {
+      -- Main options --
+      style = 'warm', -- Default theme style. Choose between 'dark', 'darker', 'cool', 'deep', 'warm', 'warmer' and 'light'
+      transparent = false, -- Show/hide background
+      term_colors = true, -- Change terminal color as per the selected theme style
+      ending_tildes = false, -- Show the end-of-buffer tildes. By default they are hidden
+      cmp_itemkind_reverse = false, -- reverse item kind highlights in cmp menu
+
+      -- toggle theme style ---
+      toggle_style_key = '<leader>ts', -- keybind to toggle theme style. Leave it nil to disable it, or set it to a string, for example "<leader>ts"
+      toggle_style_list = { 'dark', 'darker', 'cool', 'deep', 'warm', 'warmer', 'light' }, -- List of styles to toggle between
+
+      -- Change code style ---
+      -- Options are italic, bold, underline, none
+      -- You can configure multiple style with comma separated, For e.g., keywords = 'italic,bold'
+      code_style = {
+        comments = 'italic',
+        keywords = 'none',
+        functions = 'none',
+        strings = 'none',
+        variables = 'none',
+      },
+
+      -- Lualine options --
+      lualine = {
+        transparent = false, -- lualine center bar transparency
+      },
+
+      -- Custom Highlights --
+      colors = {}, -- Override default colors
+      highlights = {}, -- Override highlight groups
+
+      -- Plugins Config --
+      diagnostics = {
+        darker = true, -- darker colors for diagnostic
+        undercurl = true, -- use undercurl instead of underline for diagnostics
+        background = true, -- use background color for virtual text
+      },
+    },
+
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'onedark'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -826,7 +900,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = { 'dockerfile', 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -866,10 +940,10 @@ require('lazy').setup({
   --
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
-  --  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
