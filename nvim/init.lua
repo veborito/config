@@ -432,6 +432,7 @@ vim.pack.add({
 	},
 	"https://github.com/folke/which-key.nvim",
 	"https://github.com/folke/zen-mode.nvim",
+	"https://github.com/folke/todo-comments.nvim",
 	-- Language Server Protocols
 	"https://www.github.com/neovim/nvim-lspconfig",
 	"https://github.com/mason-org/mason.nvim",
@@ -447,6 +448,7 @@ local function packadd(name)
 	vim.cmd("packadd " .. name)
 end
 
+packadd("todo-comments.nvim")
 packadd("zen-mode.nvim")
 packadd("which-key.nvim")
 packadd("nvim-treesitter")
@@ -464,8 +466,9 @@ packadd("LuaSnip")
 -- PLUGIN CONFIGS
 -- ============================================================================
 --
-require("zen-mode")
+require("zen-mode").setup({})
 require("which-key")
+require("todo-comments").setup({})
 
 local setup_treesitter = function()
 	local treesitter = require("nvim-treesitter")
